@@ -98,6 +98,7 @@ def simulate(src, mps, reach, display=True):
     # Calculate the batch scores
     batch_size = 50
     if label.shape[0] > 150:
+        label = get_label(src_T, mps, reach)
         steps = range(0, label.shape[0], batch_size)
         batch = np.zeros((len(steps),), dtype='float')
 
