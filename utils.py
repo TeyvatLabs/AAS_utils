@@ -41,22 +41,6 @@ class GenMP:
             return {'status': res.status_code}
 
 def simulate(src, mps, reach, display=True):
-    """
-    Simulate the model based on the given parameters and display the results.
-
-    Args:
-        src (dict): Input source data.
-        mps (dict): The MPs calculated by the model.
-        reach (float): Target eeach value for accuracy calculation.
-        display (bool): Display numbers and figures. (default: True)
-
-    Raises:
-        ValueError: If the periods of input sources do not match.
-
-    Returns:
-        res (dict): Dictionary of the resulted numbers.
-    """
-
     if len(src.keys()) != len(mps.keys()):
         raise ValueError('ERROR: The period of input sources must match.')
     
@@ -87,31 +71,13 @@ def simulate(src, mps, reach, display=True):
     res[tags[1]] = round(ps/(ps+ls), 3)
     res[tags[2]] = round(((ps+ls)/label.shape[0]) * 100, 3)
 
-    # Construct the accuracy matrix by differnt ranges of target reach values (range: 0.0 to 0.1)
-    matrix = dict()
-    for r in range(100):
-        label = get_label(src_T, mps, r/1000)
-        ps = np.count_nonzero(label==1)
-        ls = np.count_nonzero(label==0)
-        matrix[r/1000] = ps/(ps+ls)
-
     if display:
         print(f'{tags[0]}: {list(src.keys())[0]}~{list(src.keys())[-1]} ({len(src.keys())})\n')
         print(f'{tags[1]}: {res[tags[1]]}')
         print(f'{tags[2]}: {res[tags[2]]}%\n')
 
-        # Draw a plot that represents the Accuracy by Reach
-        plt.plot(pd.Series(matrix), color='black', linewidth=1)
-        plt.axhline(y=matrix[reach], color='red', linestyle='--', linewidth=0.5)
-
-        plt.xlabel('Reach')
-        plt.ylabel('Accuracy')
-
-        plt.show()
-
     # Calculate the batch scores
     batch_size = 50
-    label = get_label(src_T, mps, reach)
     if label.shape[0] > 150:
         steps = range(0, label.shape[0], batch_size)
         batch = np.zeros((len(steps),), dtype='float')
@@ -139,7 +105,23 @@ def simulate(src, mps, reach, display=True):
 
             plt.xlabel('Batch')
             plt.ylabel('Score')
-
             plt.show()
+    
+    # Construct the accuracy matrix by differnt ranges of target reach values (range: 0.0 to 0.1)
+    matrix = dict()
+    for r in range(100):
+        label = get_label(src_T, mps, r/1000)
+        ps = np.count_nonzero(label==1)
+        ls = np.count_nonzero(label==0)
+        matrix[r/1000] = ps/(ps+ls)
+
+    if display:
+        # Draw a plot that represents the Accuracy by Target Reach Value
+        plt.plot(pd.Series(matrix), color='black', linewidth=1)
+        plt.axhline(y=matrix[reach], color='red', linestyle='--', linewidth=0.5)
+
+        plt.xlabel('Target Reach Value')
+        plt.ylabel('Accuracy')
+        plt.show()
     
     return res
