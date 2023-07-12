@@ -13,7 +13,7 @@ class GenMP:
         res = requests.post(f'{self.URL}/generate', json=param)
 
         if res.status_code == 200:
-            print('Processing ...')
+            print('* Processing ...')
             sec = 0
             task_id = res.json()['task_id']
             while sec < 600:
@@ -22,7 +22,7 @@ class GenMP:
                     time.sleep(5)
                     result = requests.get(f'{self.URL}/result/{task_id}')
                     if result.json()['response']:
-                        print('The model generation has been completed.')
+                        print('* The model generation has been completed.')
                         return result.json()['payload']
                 except:
                     sec += 5
