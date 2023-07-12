@@ -30,6 +30,15 @@ class GenMP:
             return {'status': 'timed out'}
         else:
             return {'status': res.status_code}
+    
+    def decipher(self, src, model):
+        param = {'src':src, 'model':model, 'api_key':self.api_key}
+        res = requests.post(f'{self.URL}/decipher', json=param)
+        
+        if res.status_code == 200:
+            return res.json()['payload']
+        else:
+            return {'status': res.status_code}
 
 def simulate(src, mps, reach, display=True):
     """
