@@ -13,6 +13,7 @@ class GenMP:
         res = requests.post(f'{self.URL}/generate', json=param)
 
         if res.status_code == 200:
+            print('Processing ...')
             sec = 0
             task_id = res.json()['task_id']
             while sec < 600:
@@ -21,20 +22,12 @@ class GenMP:
                     time.sleep(5)
                     result = requests.get(f'{self.URL}/result/{task_id}')
                     if result.json()['response']:
+                        print('The model generation has been completed.')
                         return result.json()['payload']
                 except:
                     sec += 5
                     time.sleep(5)
             return {'status': 'timed out'}
-        else:
-            return {'status': res.status_code}
-    
-    def decipher(self, src, model):
-        param = {'src':src, 'model':model, 'api_key':self.api_key}
-        res = requests.post(f'{self.URL}/decipher', json=param)
-        
-        if res.status_code == 200:
-            return res.json()['payload']
         else:
             return {'status': res.status_code}
 
